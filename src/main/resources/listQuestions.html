@@ -8,14 +8,14 @@
 <body>
     <main>
         <h1>Liste med Spørsmål</h1>
-        <div id="productList"></div>
+        <div id="questionList"></div>
     </main>
 </body>
 <script>
-    fetch("/api/products").then(function (res) {
+    fetch("/api/questions").then(function (res) {
         return res.text()
     }).then(function (text) {
-        document.querySelector("#productList").innerHTML = text;
+        document.querySelector("#questionList").innerHTML = text;
     });
 </script>
 </html>

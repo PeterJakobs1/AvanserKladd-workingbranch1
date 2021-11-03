@@ -26,8 +26,8 @@ public class HttpServer {
 
     private final ServerSocket serverSocket;
     private List<Question> questionList = new ArrayList<>();
-    private AnswerDao answerDao;
     private QuestionDao questionDao;
+    private HashMap<String, HttpController> controllers = new HashMap<>();
 
     public HttpServer(int serverPort) throws IOException {
         serverSocket = new ServerSocket(serverPort);
@@ -62,24 +62,29 @@ public class HttpServer {
             targetFile = requestTarget;
         }
 
+        if (controllers.containsKey(targetFile)){
+            HttpMessage response = controllers.get(targetFile).handle(httpMessage);
+            response.write(clientSocket);
+            return;
+        }
+
         if (targetFile.equals("/test")) {
             String testText = " ";
             if (query != null) {
-                Map<String, String> queryMap = parseRequestParameters(query);
-                testText = queryMap.get("productName");
+                Map<String, String> queryMap = HttpMessage.parseRequestParameters(query);
+                testText = queryMap.get("questionName");
             }
             String responseText = "test test";
             Response(clientSocket, responseText, "text/html");
 
-        } else if (targetFile.equals("/api/newProduct")) {
-            Map<String, String> queryMap = parseRequestParameters(httpMessage.messageBody);
+        } else if (targetFile.equals("/api/newQuestion")) {
+            Map<String, String> queryMap = HttpMessage.parseRequestParameters(httpMessage.messageBody);
             Question aQuestion = new Question();
             aQuestion.setQuestion(queryMap.get("questionInput"));
             questionDao.saveQuestion(aQuestion);
             Response(clientSocket, "Question Added!", "text/html");
 
-        } else if (targetFile.equals("/api/products")) {
-
+        } else if (targetFile.equals("/api/Questions")) {
             String responseText = "";
             for (Question i : questionDao.listAll()) {
                 responseText += "<li>" + i.toString() + "</li>";
@@ -87,17 +92,7 @@ public class HttpServer {
             String responseList = "<ul>" + responseText +"</ul>";
             Response(clientSocket, responseList, "text/html");
 
-        } else if (targetFile.equals("/api/categoryOptions")) {
-            String responseText = "";
-
-            int value = 1;
-            for (String option : answerDao.listAll()) {
-                responseText += "<option value=" + (value++) + ">" + option + "</option>";
-            }
-
-            Response(clientSocket, responseText, "text/html");
-
-        } else {
+        }  else {
             InputStream resourceFile = getClass().getResourceAsStream(targetFile);
             if (resourceFile != null) {
                 ByteArrayOutputStream buffer = new ByteArrayOutputStream();
@@ -125,17 +120,6 @@ public class HttpServer {
         }
     }
 
-    private Map<String, String> parseRequestParameters(String query) {
-        Map<String, String> queryMap = new HashMap<>();
-        for (String queryParameter : query.split("&")) {
-            int equalsPos = queryParameter.indexOf('=');
-            String parameterName = queryParameter.substring(0, equalsPos);
-            String parameterValue = queryParameter.substring(equalsPos+1);
-            queryMap.put(parameterName, parameterValue);
-        }
-        return queryMap;
-    }
-
     private void Response(Socket clientSocket, String responseText, String contentType) throws IOException {
         String response = "HTTP/1.1 200 OK\r\n" +
                 "Content-Length: " + responseText.length() + "\r\n" +
@@ -148,8 +132,10 @@ public class HttpServer {
 
     public static void main(String[] args) throws IOException {
         HttpServer httpServer = new HttpServer(1984);
-        httpServer.setAnswerDao(new AnswerDao(createDataSource()));
-        httpServer.setQuestionDao(new QuestionDao(createDataSource()));
+        new AnswerDao(createDataSource());
+
+        new QuestionDao(createDataSource());
+
         logger.info(" Starting http://localhost:{}/index.html", httpServer.getPort());
         // http://localhost:1984/index.html
 
@@ -177,16 +163,12 @@ public class HttpServer {
         return serverSocket.getLocalPort();
     }
 
-   public void setAnswerDao(AnswerDao answerDao){
-        this.answerDao = answerDao;
-   }
-
-   public void setQuestionDao(QuestionDao questionDao) {
-        this.questionDao = questionDao;
-   }
-
     public List<Question> getItem() {
         return questionList;
     }
 
+    public void addController(String path, HttpController controller) {
+        controllers.put(path, controller);
+    }
 }
+
