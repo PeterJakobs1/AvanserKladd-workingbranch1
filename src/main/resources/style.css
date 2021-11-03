@@ -1,0 +1,15 @@
+body {
+    background-color: #f5e4cb;
+}
+
+main {
+    padding: 1em;
+    background-color: #a88f7b;
+    max-width: 60em;
+    margin: auto;
+    border-radius: .5em;
+}
+
+h1 {
+    color: #000000;
+}

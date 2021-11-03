@@ -1,0 +1,28 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Legg til et spørsmål | Quiz</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main>
+        <h1>Legg til et spørsmål</h1>
+        <form action="/api/newProduct" method="POST">
+            <p><label>Legg til et spørsmål: <input type="text" name="questionInput" placeholder="Spørsmål" /></label></p>
+            <p><label>Legg til et svar: <input type="text" name="answerOption1" placeholder="Alternativ 1" /></label></p>
+            <p><label>Legg til et svar: <input type="text" name="answerOption2" placeholder="Alternativ 2" /></label></p>
+            <p><label>Legg til et svar: <input type="text" name="answerOption3" placeholder="Alternativ 3" /></label></p>
+            <p><label>Product category: <select name="category" id="category"></select></label></p>
+            <p><button>Submit</button></p>
+        </form>
+    </main>
+</body>
+<script>
+    fetch("/api/categoryOptions").then(function(res) {
+        return res.text()
+    }).then(function(text) {
+        document.querySelector("#category").innerHTML = text;
+    });
+</script>
+</html>

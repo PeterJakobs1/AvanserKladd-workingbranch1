@@ -1,0 +1,21 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Liste over Sørsmål | Quiz</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main>
+        <h1>Liste med Spørsmål</h1>
+        <div id="productList"></div>
+    </main>
+</body>
+<script>
+    fetch("/api/products").then(function (res) {
+        return res.text()
+    }).then(function (text) {
+        document.querySelector("#productList").innerHTML = text;
+    });
+</script>
+</html>
