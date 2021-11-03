@@ -150,6 +150,7 @@ public class HttpServer {
         HttpServer httpServer = new HttpServer(1984);
         httpServer.setAnswerDao(new AnswerDao(createDataSource()));
         httpServer.setQuestionDao(new QuestionDao(createDataSource()));
+        logger.info(" Starting http://localhost:{}/index.html", httpServer.getPort());
         // http://localhost:1984/index.html
 
 
