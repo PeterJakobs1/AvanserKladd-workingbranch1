@@ -67,6 +67,8 @@ public class HttpServer {
             Response(clientSocket, responseList, "text/html");
 
         }  else {
+
+            // Legges inn i en controller ?
             InputStream resourceFile = getClass().getResourceAsStream(targetFile);
             if (resourceFile != null) {
                 ByteArrayOutputStream buffer = new ByteArrayOutputStream();

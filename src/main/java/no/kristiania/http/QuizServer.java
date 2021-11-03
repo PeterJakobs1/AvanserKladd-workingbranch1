@@ -24,8 +24,6 @@ public class QuizServer {
         logger.info(" Starting http://localhost:{}/index.html", httpServer.getPort());
         // http://localhost:1984/index.html
 
-
-
     }
 
     private static DataSource createDataSource() throws IOException {

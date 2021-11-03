@@ -128,4 +128,8 @@ public class QuestionDao {
     public static void main(String[] args) {
 
     }
+
+    public void save(Question question1) {
+
+    }
 }
