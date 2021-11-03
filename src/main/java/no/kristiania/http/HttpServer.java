@@ -21,13 +21,13 @@ import java.util.*;
 
 public class HttpServer {
 
-    private static  final Logger logger = LoggerFactory.getLogger(HttpServer.class);
-
-
     private final ServerSocket serverSocket;
-    private List<Question> questionList = new ArrayList<>();
+    private final HashMap<String, HttpController> controllers = new HashMap<>();
+
+    // -- Feil ? - \\
+    private static AnswerDao answerDao;
     private QuestionDao questionDao;
-    private HashMap<String, HttpController> controllers = new HashMap<>();
+
 
     public HttpServer(int serverPort) throws IOException {
         serverSocket = new ServerSocket(serverPort);
@@ -77,13 +77,6 @@ public class HttpServer {
             String responseText = "test test";
             Response(clientSocket, responseText, "text/html");
 
-        } else if (targetFile.equals("/api/newQuestion")) {
-            Map<String, String> queryMap = HttpMessage.parseRequestParameters(httpMessage.messageBody);
-            Question aQuestion = new Question();
-            aQuestion.setQuestion(queryMap.get("questionInput"));
-            questionDao.saveQuestion(aQuestion);
-            Response(clientSocket, "Question Added!", "text/html");
-
         } else if (targetFile.equals("/api/Questions")) {
             String responseText = "";
             for (Question i : questionDao.listAll()) {
@@ -130,42 +123,10 @@ public class HttpServer {
         clientSocket.getOutputStream().write(response.getBytes());
     }
 
-    public static void main(String[] args) throws IOException {
-        HttpServer httpServer = new HttpServer(1984);
-        new AnswerDao(createDataSource());
-
-        new QuestionDao(createDataSource());
-
-        logger.info(" Starting http://localhost:{}/index.html", httpServer.getPort());
-        // http://localhost:1984/index.html
-
-
-
-    }
-
-    private static DataSource createDataSource() throws IOException {
-        Properties properties = new Properties();
-        try (FileReader fileReader = new FileReader("pgr203.properties")) {
-            properties.load(fileReader);
-        }
-
-        PGSimpleDataSource dataSource = new PGSimpleDataSource();
-        dataSource.setUrl(properties.getProperty(
-                "dataSource.url",
-                "jdbc:postgresql://localhost:5432/person_db"));
-        dataSource.setUser(properties.getProperty("dataSource.user","person_dbuser"));
-        dataSource.setPassword(properties.getProperty("dataSource.password"));
-        Flyway.configure().dataSource(dataSource).load().migrate();
-        return dataSource;
-    }
-
     public int getPort() {
         return serverSocket.getLocalPort();
     }
 
-    public List<Question> getItem() {
-        return questionList;
-    }
 
     public void addController(String path, HttpController controller) {
         controllers.put(path, controller);

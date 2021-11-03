@@ -56,7 +56,7 @@ class HttpServerTest {
     }
 
     @Test
-    void shouldCreateNewItem() throws IOException, SQLException {
+    void shouldCreateNewQuestion() throws IOException, SQLException {
         QuestionDao questionDao = new QuestionDao(TestData.testDataSource());
         server.addController("/api/newQuestion", new addQuestionController(questionDao));
 
