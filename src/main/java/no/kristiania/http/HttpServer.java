@@ -3,27 +3,20 @@ package no.kristiania.http;
 import no.kristiania.questions.AnswerDao;
 import no.kristiania.questions.Question;
 import no.kristiania.questions.QuestionDao;
-import org.flywaydb.core.Flyway;
-import org.postgresql.ds.PGSimpleDataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.sql.DataSource;
 import java.io.ByteArrayOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.HashMap;
 
 
 public class HttpServer {
 
     private final ServerSocket serverSocket;
     private final HashMap<String, HttpController> controllers = new HashMap<>();
-
     // -- Feil ? - \\
     private static AnswerDao answerDao;
     private QuestionDao questionDao;
@@ -57,7 +50,6 @@ public class HttpServer {
         String query = null;
         if (questionPos != -1) {
             targetFile = requestTarget.substring(0, questionPos);
-            query = requestTarget.substring(questionPos+1);
         } else {
             targetFile = requestTarget;
         }
@@ -65,22 +57,11 @@ public class HttpServer {
         if (controllers.containsKey(targetFile)){
             HttpMessage response = controllers.get(targetFile).handle(httpMessage);
             response.write(clientSocket);
-            return;
-        }
-
-        if (targetFile.equals("/test")) {
-            String testText = " ";
-            if (query != null) {
-                Map<String, String> queryMap = HttpMessage.parseRequestParameters(query);
-                testText = queryMap.get("questionName");
-            }
-            String responseText = "test test";
-            Response(clientSocket, responseText, "text/html");
 
         } else if (targetFile.equals("/api/Questions")) {
-            String responseText = "";
+            StringBuilder responseText = new StringBuilder();
             for (Question i : questionDao.listAll()) {
-                responseText += "<li>" + i.toString() + "</li>";
+                responseText.append(responseText).append("<li>").append(i.toString()).append("</li>");
             }
             String responseList = "<ul>" + responseText +"</ul>";
             Response(clientSocket, responseList, "text/html");
