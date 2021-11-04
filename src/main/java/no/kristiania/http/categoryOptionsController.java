@@ -16,8 +16,8 @@ public class categoryOptionsController implements HttpController  {
         String responseText = "";
 
         int value = 1;
-        for (String option : answerDao.listAll()) {
-            responseText += "<option value=" + (value++) + ">" + option + "</option>";
+        for (String answer : answerDao.listAll()) {
+            responseText += "<option value=" + (value++) + ">" + answer + "</option>";
         }
         return new HttpMessage("HTTP/1.1 200 OK", responseText);
     }
