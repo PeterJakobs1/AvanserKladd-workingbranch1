@@ -9,7 +9,8 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class HttpServerTest {
 
@@ -17,6 +18,17 @@ class HttpServerTest {
 
     HttpServerTest() throws IOException {
 
+    }
+    @Test
+    void shouldReturn404ForUnknownRequestTarget() throws IOException {
+        HttpClient client = new HttpClient("localhost", server.getPort(), "/non-existing");
+        assertEquals(404, client.getStatusCode());
+    }
+
+    @Test
+    void shouldRespondWithRequestTargetIn404() throws IOException {
+        HttpClient client = new HttpClient("localhost", server.getPort(), "/non-existing");
+        assertEquals("File not found: /non-existing", client.getMessageBody());
     }
 
 
@@ -49,8 +61,6 @@ class HttpServerTest {
         QuestionDao questionDao = new QuestionDao(TestData.testDataSource());
         server.addController("/api/newQuestion", new addQuestionController(questionDao));
 
-
-
         HttpServer server = new HttpServer(0);
         HttpPostClient postClient = new HttpPostClient(
                 "localhost",
@@ -59,30 +69,26 @@ class HttpServerTest {
                 "questionInput=goldfish"
         );
         assertEquals(200, postClient.getStatusCode());
-        Question questionItem = questionDao.listAll().get(0);
-        assertEquals("goldfish", questionItem.getQuestion());
+        assertThat(questionDao.listAll())
+                .anySatisfy(p -> assertThat(p.getQuestion()).isEqualTo("goldfish"));
     }
 
+    @Test
+    void shouldListQuestionFromDatabase() throws SQLException, IOException {
+        QuestionDao questionDao = new QuestionDao(TestData.testDataSource());
 
-    // Noe galt
+        Question question1 = QuestionDaoTest.exampleQuestion();
+        questionDao.saveQuestion(question1);
+        Question question2 = QuestionDaoTest.exampleQuestion();
+        questionDao.saveQuestion(question2);
+
+        server.addController("/api/question", new listQuestionController(questionDao));
+
+        HttpClient client = new HttpClient("localhost", server.getPort(), "/api/question");
+        assertThat(client.getMessageBody())
+                .contains(question1.getQuestion())
+                .contains(question2.getQuestion());
 
 
-//    @Test
-//    void shouldListQuestionFromDatabase() throws SQLException, IOException {
-//        QuestionDao questionDao = new QuestionDao(TestData.testDataSource());
-//
-//        Question question1 = QuestionDaoTest.exampleQuestion();
-//        questionDao.saveQuestion(question1);
-//        Question question2 = QuestionDaoTest.exampleQuestion();
-//        questionDao.saveQuestion(question2);
-//
-//        server.addController("/api/question", new addQuestionController(questionDao));
-//
-//        HttpClient client = new HttpClient("localhost", server.getPort(), "/api/question");
-//        assertThat(client.getMessageBody())
-//                .contains(question1.getQuestion()
-//                        .contains(question2.getQuestion());
-//
-//
-//    }
+    }
 }

@@ -25,7 +25,7 @@ public class HttpMessage {
 
     public static Map<String, String> parseRequestParameters(String query) {
         Map<String, String> queryMap = new HashMap<>();
-        for (String queryParameter : query.split("&")) {
+        for (String queryParameter : query.split(" ")) {
             int equalsPos = queryParameter.indexOf('=');
             String parameterName = queryParameter.substring(0, equalsPos);
             String parameterValue = queryParameter.substring(equalsPos+1);
