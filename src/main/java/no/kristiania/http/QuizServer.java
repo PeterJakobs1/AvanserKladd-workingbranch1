@@ -15,13 +15,15 @@ import java.util.Properties;
 
 public class QuizServer {
     private static  final Logger logger = LoggerFactory.getLogger(HttpServer.class);
+    private static AnswerDao answerDao;
+    private static AnswerDao questionDao;
 
     public static void main(String[] args) throws IOException {
         HttpServer httpServer = new HttpServer(1984);
         new AnswerDao(createDataSource());
         new QuestionDao(createDataSource());
-//        httpServer.addController(" /api/newAnswer", new categoryOptionsController(answerDao));
-//        httpServer.addController(" /api/newQuestion", new categoryOptionsController(answerDao));
+        httpServer.addController(" /api/newAnswer", new categoryOptionsController(answerDao));
+        httpServer.addController(" /api/newQuestion", new categoryOptionsController(questionDao));
         logger.info(" Starting http://localhost:{}/index.html", httpServer.getPort());
         // http://localhost:1984/index.html
 

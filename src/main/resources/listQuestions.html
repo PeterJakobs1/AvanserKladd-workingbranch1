@@ -12,7 +12,7 @@
     </main>
 </body>
 <script>
-    fetch("/api/questions").then(function (res) {
+    fetch("/api/question").then(function (res) {
         return res.text()
     }).then(function (text) {
         document.querySelector("#questionList").innerHTML = text;

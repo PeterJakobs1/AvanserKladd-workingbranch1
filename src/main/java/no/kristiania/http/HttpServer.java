@@ -58,6 +58,7 @@ public class HttpServer {
                 String responseText = "<p>test " + questionName + "</p>";
 
                 Response(clientSocket, responseText, "text/html");
+
             }
         InputStream fileResource = getClass().getResourceAsStream(fileTarget);
         if (fileResource != null) {
