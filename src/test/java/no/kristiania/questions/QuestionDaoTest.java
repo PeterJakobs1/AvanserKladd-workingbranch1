@@ -51,7 +51,7 @@ public class QuestionDaoTest {
 
     }
 
-    private Question exampleQuestion() {
+    public static Question exampleQuestion() {
         Question question = new Question();
         question.setQuestion(TestData.pickOne("Fish?","Bread?","Hat?"));
         return question;
